@@ -1,5 +1,5 @@
 E:
-cd E:\Data\VS code\test\UNKNOWN\Soltan
+cd E:\Data\VS code\test\Soltan
 git init
 git add .
 git commit -m "first commit"
