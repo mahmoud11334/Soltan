@@ -13,39 +13,31 @@ themeBtn.addEventListener('click', () => {
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
 });
 
-const burger = document.getElementById('burger');
-const navLinks = document.getElementById('navLinks');
-burger.addEventListener('click', () => {
-  burger.classList.toggle('open');
-  navLinks.classList.toggle('open');
-});
-navLinks.querySelectorAll('a').forEach(a => {
-  a.addEventListener('click', () => {
-    burger.classList.remove('open');
-    navLinks.classList.remove('open');
-  });
-});
-
-const mainNav = document.getElementById('mainNav');
-let lastY = 0;
-window.addEventListener('scroll', () => {
-  const y = window.scrollY;
-  mainNav.style.boxShadow = y > 40 ? '0 4px 28px rgba(0,0,0,.14)' : '';
-  lastY = y;
-});
-
-const observer = new IntersectionObserver(entries => {
+const revealObserver = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if (e.isIntersecting) {
       e.target.classList.add('vis');
-      observer.unobserve(e.target);
+      revealObserver.unobserve(e.target);
     }
   });
 }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
 
 document.querySelectorAll('.reveal-up, .reveal-left, .reveal-right').forEach(el => {
-  observer.observe(el);
+  revealObserver.observe(el);
 });
+
+const aboutSection = document.querySelector('.about');
+if (aboutSection) {
+  const crystalObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('crystal-in');
+        crystalObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.04, rootMargin: '0px 0px 0px 0px' });
+  crystalObserver.observe(aboutSection);
+}
 
 const counterObserver = new IntersectionObserver(entries => {
   entries.forEach(e => {
@@ -78,7 +70,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     const target = document.querySelector(a.getAttribute('href'));
     if (target) {
       e.preventDefault();
-      window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' });
+      window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 40, behavior: 'smooth' });
     }
   });
 });

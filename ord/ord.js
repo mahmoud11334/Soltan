@@ -1,10 +1,4 @@
-/* ============================================================
-   ord.js  —  منطق صفحة الطلبات
-   ============================================================ */
-
-/* ===== 1. البيانات — سهل التعديل ===== */
-
-const WHATSAPP_NUMBER = '201558143429'; // رقم الواتساب بدون + أو صفر
+const WHATSAPP_NUMBER = '201558143429'; 
 
 const CATEGORIES = [
   { label: 'الكل',    value: 'all'     },
@@ -13,14 +7,6 @@ const CATEGORIES = [
   { label: 'طواجن',  value: 'طواجن'   },
 ];
 
-/*
-  قواعد المنتج:
-  - name, category  : مطلوبان دايمًا
-  - price           : السعر الأساسي (يظهر لو s,m,l كلهم فاضيين / null)
-  - s, m, l         : أسعار الأحجام (لو موجود واحد منهم → وضع متعدد الأحجام)
-                      لو واحد منهم null → مش متاح ده الحجم ده
-  - mkon            : المكونات (اختياري — لو فاضي/null مش بتظهر)
-*/
 const PRODUCTS = [
   {
     name:     'كشري السلطان',
@@ -78,22 +64,16 @@ const PRODUCTS = [
   },
 ];
 
-/* =========================================================
-   2. الحالة
-   ========================================================= */
+
 let currentCategory = 'all';
 let cart = [];  // [{product, selectedSize}]
 
-/* =========================================================
-   3. مساعدات
-   ========================================================= */
 
-/** هل المنتج ليه أحجام؟ */
 function hasSizes(p) {
   return p.s !== null || p.m !== null || p.l !== null;
 }
 
-/** بناء أزواج الأحجام المتاحة بترتيب S,M,L */
+
 function getSizes(p) {
   const pairs = [];
   if (p.s !== null) pairs.push({ label: 'S', price: p.s });
@@ -102,7 +82,7 @@ function getSizes(p) {
   return pairs;
 }
 
-/** السعر الفعلي لعنصر في السلة */
+
 function itemPrice(entry) {
   if (!hasSizes(entry.product)) return entry.product.price;
   if (!entry.selectedSize) return '—';
@@ -110,9 +90,6 @@ function itemPrice(entry) {
   return map[entry.selectedSize] || '—';
 }
 
-/* =========================================================
-   4. عرض الفئات
-   ========================================================= */
 function renderCategories() {
   const nav = document.getElementById('categoriesNav');
   nav.innerHTML = '';
@@ -129,14 +106,11 @@ function renderCategories() {
   });
 }
 
-/* =========================================================
-   5. عرض المنتجات
-   ========================================================= */
 function renderProducts() {
   const grid = document.getElementById('productsGrid');
   grid.innerHTML = '';
 
-  // فلترة
+
   let list = currentCategory === 'all'
     ? [...PRODUCTS].sort(() => Math.random() - 0.5)
     : PRODUCTS.filter(p => p.category === currentCategory);
@@ -150,22 +124,21 @@ function renderProducts() {
     const card = document.createElement('div');
     card.className = 'product-card';
 
-    // تاج الفئة
+
     card.innerHTML += `<span class="product-category-tag">${product.category}</span>`;
 
-    // الاسم
+
     card.innerHTML += `<div class="product-name">${product.name}</div>`;
 
-    // المكونات
+
     if (product.mkon) {
       card.innerHTML += `<div class="product-mkon">🧂 ${product.mkon}</div>`;
     }
 
-    // الأحجام أو السعر الواحد
+
     if (hasSizes(product)) {
       const sizes = getSizes(product);
-      // S يمين (أول عنصر في RTL) → M وسط → L يسار
-      // في RTL، flex-direction: row → أول عنصر على اليمين ✓
+
       const sizeRow = document.createElement('div');
       sizeRow.className = 'sizes-row';
       sizes.forEach(sz => {
@@ -180,7 +153,7 @@ function renderProducts() {
       card.innerHTML += `<div class="single-price">${product.price}</div>`;
     }
 
-    // زر الإضافة
+
     const addBtn = document.createElement('button');
     addBtn.className = 'add-btn';
     addBtn.textContent = '+ أضف للسلة';
@@ -191,9 +164,7 @@ function renderProducts() {
   });
 }
 
-/* =========================================================
-   6. السلة
-   ========================================================= */
+
 function addToCart(product) {
   cart.push({ product, selectedSize: null });
   updateCartFloat();
@@ -243,7 +214,7 @@ function renderCartModal() {
     const div = document.createElement('div');
     div.className = 'cart-item';
 
-    // رأس العنصر
+    
     div.innerHTML = `
       <div class="cart-item-header">
         <span class="cart-item-name">${entry.product.name}</span>
@@ -252,7 +223,6 @@ function renderCartModal() {
       <div class="cart-item-cat">📂 ${entry.product.category}</div>
     `;
 
-    // لو فيه أحجام → أظهر خيارات الحجم
     if (hasSizes(entry.product)) {
       const sizes = getSizes(entry.product);
       const row = document.createElement('div');
@@ -280,15 +250,13 @@ function renderCartModal() {
   });
 }
 
-/* =========================================================
-   7. تأكيد الطلب وإرسال الواتساب
-   ========================================================= */
+
 function confirmOrder() {
   const name    = document.getElementById('clientName').value.trim();
   const address = document.getElementById('clientAddress').value.trim();
   const payment = document.querySelector('input[name="payment"]:checked')?.value || 'نقدي';
 
-  // تحقق بسيط
+
   if (!name) {
     alert('من فضلك اكتب اسمك ');
     document.getElementById('clientName').focus();
@@ -300,7 +268,7 @@ function confirmOrder() {
     return;
   }
 
-  // تحقق من اختيار الأحجام
+
   for (let i = 0; i < cart.length; i++) {
     const entry = cart[i];
     if (hasSizes(entry.product) && !entry.selectedSize) {
@@ -309,7 +277,7 @@ function confirmOrder() {
     }
   }
 
-  // بناء رسالة الواتساب
+
   let msg = `سلام عليكم\n`;
   msg += `اسمي : ${name}\n`;
   msg += `عنواني : ${address}\n`;
@@ -327,7 +295,7 @@ function confirmOrder() {
     msg += `اسمه : ${pName}\n`;
     msg += `سعره : ${pPrice}\n`;
 
-    // الحجم يظهر بس لو المنتج عنده أحجام
+
     if (hasSizes(entry.product)) {
       msg += `حجمه : ${pSize}\n`;
     }
@@ -335,13 +303,11 @@ function confirmOrder() {
     msg += `نوعه : ${pCat}\n`;
   });
 
-  // فتح الواتساب
+
   const encoded = encodeURIComponent(msg);
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, '_blank');
 }
 
-/* =========================================================
-   8. Init
-   ========================================================= */
+
 renderCategories();
 renderProducts();
