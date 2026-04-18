@@ -487,8 +487,8 @@ html, body{
 }
 
 body{
-  overscroll-behavior:none;
   -webkit-overflow-scrolling:touch;
+  overflow-y:auto;
   touch-action:pan-y;
 }
 
